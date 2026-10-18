@@ -1,0 +1,36 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/laws",
+      "destination": "/static/list.html"
+    },
+    {
+      "source": "/rules",
+      "destination": "/static/list.html"
+    },
+    {
+      "source": "/commentary",
+      "destination": "/static/list.html"
+    },
+    {
+      "source": "/search",
+      "destination": "/static/search.html"
+    },
+    {
+      "source": "/viewer",
+      "destination": "/static/viewer.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/static/admin.html"
+    },
+    {
+      "source": "/",
+      "destination": "/static/index.html"
+    }
+  ]
+}

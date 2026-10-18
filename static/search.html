@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>검색 결과 - 해양경찰 법령정보센터</title>
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/list.css">
+</head>
+<body>
+  <!-- 상단 글로벌 헤더 -->
+  <header class="kcg-header">
+    <div class="header-container">
+      <a href="/" class="brand-area">
+        <div class="brand-logo-badge">⚓</div>
+        <div class="brand-text-wrap">
+          <span class="brand-sub">Korea Coast Guard</span>
+          <span class="brand-title">해양경찰 법령정보센터</span>
+        </div>
+      </a>
+      
+      <nav class="main-nav">
+        <a href="/laws" class="nav-link">📘 법령</a>
+        <a href="/rules" class="nav-link">📑 행정규칙</a>
+        <a href="/commentary" class="nav-link">💡 법령해설</a>
+        <a href="/admin" class="nav-link nav-link-admin">⚙️ 관리자 모드</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+    <!-- 상단 네비게이션: 홈 화면 복귀 기능 -->
+    <div class="page-nav-bar">
+      <div class="page-title-wrap">
+        <h1 class="page-title">통합 검색 결과</h1>
+        <span id="searchResultCount" class="page-badge-count">총 0건</span>
+      </div>
+      
+      <!-- 홈 화면으로 돌아가기 버튼 -->
+      <a href="/" class="back-home-btn">
+        <span>🏠</span>
+        <span>홈 화면으로 돌아가기</span>
+      </a>
+    </div>
+
+    <!-- 검색 요약 및 재검색 창 -->
+    <div class="filter-control-bar">
+      <div class="search-summary-text" style="font-size: 15px; color: var(--kcg-slate-dark);">
+        '<span id="displayKeyword" class="search-query-word">-</span>'에 대한 법령 및 조문 검색 결과입니다.
+      </div>
+
+      <div class="list-quick-search" style="width: 320px;">
+        <input type="text" id="reSearchInput" style="flex:1;" placeholder="새 검색어 입력">
+        <button type="button" id="btnReSearch">검색</button>
+      </div>
+    </div>
+
+    <!-- 검색 결과 카드 목록 -->
+    <div id="searchResultsContainer" class="search-results-list">
+      <div style="text-align: center; padding: 3rem; color: var(--kcg-slate);">
+        검색 결과를 불러오는 중입니다...
+      </div>
+    </div>
+  </main>
+
+  <footer class="kcg-footer">
+    <div class="footer-container">
+      <p>해양경찰 법령정보센터 | Korea Coast Guard Law Information Center</p>
+    </div>
+  </footer>
+
+  <script src="/static/js/common.js"></script>
+  <script src="/static/js/search.js"></script>
+</body>
+</html>

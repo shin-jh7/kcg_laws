@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>법령 본문 상세 뷰어 - 해양경찰 법령정보센터</title>
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/viewer.css">
+</head>
+<body class="viewer-body">
+  <div class="viewer-app-container">
+    <!-- 1. 최상단 네이비 헤더 (첨부2 상단 바 스타일) -->
+    <header class="viewer-top-header">
+      <div class="viewer-header-left">
+        <span id="viewerCategoryBadge" class="viewer-badge-category">법령</span>
+        <h1 id="viewerLawTitleHeader" class="viewer-header-title">해양경찰 법령 본문 뷰어</h1>
+      </div>
+      <div class="viewer-header-right">
+        <span style="font-weight: 700; color: #fff;">⚓ 해양경찰 법령정보센터</span>
+        <button type="button" class="btn-header-action" onclick="window.close()" title="창 닫기">✕ 닫기</button>
+      </div>
+    </header>
+
+    <!-- 2. 서브 툴바 (첨부2 툴바 벤치마킹) -->
+    <div class="viewer-sub-toolbar">
+      <div class="toolbar-info-tags">
+        <button type="button" id="tabTextMode" class="tag-btn-fake active">📖 조문 본문</button>
+        <button type="button" id="tabPdfMode" class="tag-btn-fake" style="display: none; background: #E8F5E9; color: #2E7D32; font-weight: 700;">📄 원본 PDF 문서 보기</button>
+        <button type="button" class="tag-btn-fake" onclick="alert('제개정이유는 최신 개정 연혁 정보를 기반으로 제공됩니다.')">제개정이유</button>
+        <button type="button" class="tag-btn-fake" onclick="scrollToSection('sec-annex')">별표·서식</button>
+        <button type="button" class="tag-btn-fake" onclick="scrollToSection('sec-addenda')">부칙</button>
+      </div>
+
+      <div class="toolbar-controls">
+        <!-- 조문 빠른 선택 셀렉트 -->
+        <select id="articleQuickSelect" style="font-size: 12px; padding: 2px 6px; border: 1px solid var(--kcg-ice-dark); border-radius: var(--radius-sm); outline: none;">
+          <option value="">조문선택</option>
+        </select>
+
+        <!-- 화면 내 검색 -->
+        <div class="in-page-search-wrap">
+          <input type="text" id="inPageSearchInput" class="in-page-search-input" placeholder="화면내검색">
+          <span id="searchMatchCount" class="search-match-count"></span>
+          <button type="button" id="btnPrevMatch" class="in-page-search-btn" title="이전">▲</button>
+          <button type="button" id="btnNextMatch" class="in-page-search-btn" title="다음">▼</button>
+        </div>
+
+        <!-- 글자 크기 조절 -->
+        <div class="font-size-ctrl">
+          <button type="button" id="btnFontDown" class="btn-font-ctrl" title="글자 작게">가-</button>
+          <button type="button" id="btnFontUp" class="btn-font-ctrl" title="글자 크게">가+</button>
+        </div>
+
+        <!-- 인쇄 / 다운로드 -->
+        <button type="button" class="tag-btn-fake" onclick="window.print()" title="본문 인쇄">🖨️ 인쇄</button>
+        <button type="button" id="btnDownloadOriginal" class="tag-btn-fake" title="로컬 저장 원본 파일 다운로드">💾 원본</button>
+      </div>
+    </div>
+
+    <!-- 3. 2열 분할 레이아웃 (좌측 목차 트리 + 우측 본문) -->
+    <div class="viewer-split-layout">
+      <!-- 좌측 사이드바: 조문 목차 트리 (첨부2 좌측 목차) -->
+      <aside class="viewer-sidebar-toc">
+        <div class="toc-header">
+          <span>📋 조문 목차</span>
+          <span style="font-size: 11px; color: var(--kcg-slate-dark);">클릭 시 이동</span>
+        </div>
+        <ul id="tocList" class="toc-tree">
+          <li style="padding: 1rem; color: var(--kcg-slate); font-size: 12px;">목차를 구성 중입니다...</li>
+        </ul>
+      </aside>
+
+      <!-- 우측 메인 영역: 법령 본문 상세 (첨부2 우측 본문) -->
+      <main id="viewerContentPane" class="viewer-content-pane">
+        <div class="paper-sheet" id="paperSheetContainer">
+          <!-- 법령 제명 및 메타정보 배너 -->
+          <div class="law-title-banner">
+            <h2 id="bannerLawTitle" class="law-name-heading">법령명을 불러오는 중입니다...</h2>
+            <div id="bannerMeta" class="law-meta-row"></div>
+            <div id="bannerDept" class="law-dept-info"></div>
+          </div>
+
+          <!-- 법령 조문 본문 컨테이너 -->
+          <div id="lawBodyContainer" class="law-body-container">
+            <!-- 동적으로 장, 조문, 부칙, 별표 등이 렌더링됩니다 -->
+          </div>
+        </div>
+
+        <!-- 원본 PDF 전용 인라인 뷰어 컨테이너 -->
+        <div id="pdfViewerContainer" style="display: none; width: 100%; height: 100%;">
+          <iframe id="pdfIframe" src="" style="width: 100%; height: 100%; min-height: 85vh; border: 1px solid var(--kcg-ice-dark); border-radius: var(--radius-sm);"></iframe>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/static/js/common.js"></script>
+  <script src="/static/js/viewer.js"></script>
+</body>
+</html>

@@ -1,0 +1,414 @@
+/* 
+ * [첨부2 국가법령정보센터 스타일 2열 법령 상세 본문 뷰어 스타일]
+ */
+
+html, body.viewer-body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #F4F7F9;
+}
+
+.viewer-app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* 1. 최상단 마린 블루 헤더 */
+.viewer-top-header {
+  background: linear-gradient(90deg, var(--kcg-navy) 0%, #1F436B 100%);
+  color: var(--kcg-white);
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.15);
+  user-select: none;
+}
+
+.viewer-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.viewer-badge-category {
+  background-color: var(--kcg-steel);
+  color: var(--kcg-white);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.viewer-header-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 600px;
+}
+
+.viewer-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--kcg-ice);
+}
+
+.btn-header-action {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--kcg-white);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.15s ease;
+}
+
+.btn-header-action:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 2. 유틸리티 툴바 (화면내검색, 인쇄, 폰트크기 등) */
+.viewer-sub-toolbar {
+  background: var(--kcg-white);
+  border-bottom: 1px solid var(--kcg-ice);
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.toolbar-info-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tag-btn-fake {
+  background: var(--kcg-ice-light);
+  border: 1px solid var(--kcg-ice);
+  color: var(--kcg-steel-dark);
+  font-size: 11.5px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+.tag-btn-fake.active {
+  background: var(--kcg-steel);
+  color: var(--kcg-white);
+  border-color: var(--kcg-steel);
+}
+
+.toolbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 화면 내 검색창 */
+.in-page-search-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--kcg-ice-dark);
+  border-radius: var(--radius-sm);
+  background: var(--kcg-white);
+  height: 28px;
+  padding: 0 6px;
+}
+
+.in-page-search-input {
+  border: none;
+  font-size: 12px;
+  outline: none;
+  width: 140px;
+  padding: 2px 4px;
+}
+
+.in-page-search-btn {
+  background: none;
+  font-size: 11px;
+  color: var(--kcg-steel);
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+.in-page-search-btn:hover {
+  color: var(--kcg-navy);
+}
+
+.search-match-count {
+  font-size: 11px;
+  color: var(--kcg-slate);
+  margin-right: 4px;
+}
+
+.font-size-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--kcg-ice-light);
+  border: 1px solid var(--kcg-ice);
+  border-radius: var(--radius-sm);
+  padding: 1px;
+}
+
+.btn-font-ctrl {
+  background: transparent;
+  color: var(--kcg-navy);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.btn-font-ctrl:hover {
+  background: var(--kcg-ice);
+}
+
+/* 3. 2열 메인 레이아웃 (좌측 목차 + 우측 본문) */
+.viewer-split-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 좌측 사이드바 목차 */
+.viewer-sidebar-toc {
+  width: 260px;
+  background-color: #F8FAFC;
+  border-right: 1px solid var(--kcg-ice);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.toc-header {
+  padding: 10px 14px;
+  background-color: var(--kcg-ice);
+  color: var(--kcg-navy);
+  font-size: 12.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--kcg-ice-dark);
+}
+
+.toc-tree {
+  list-style: none;
+  padding: 8px 0;
+}
+
+.toc-node {
+  margin: 1px 0;
+}
+
+.toc-item-link {
+  display: block;
+  padding: 6px 14px 6px 18px;
+  font-size: 13px;
+  color: var(--kcg-text-main);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 3px solid transparent;
+}
+
+.toc-item-link:hover {
+  background-color: var(--kcg-ice);
+  color: var(--kcg-navy);
+  text-decoration: none;
+}
+
+.toc-item-link.active {
+  background-color: #EBF2F8;
+  color: var(--kcg-navy);
+  font-weight: 700;
+  border-left-color: var(--kcg-navy);
+}
+
+.toc-item-chapter {
+  font-weight: 700;
+  color: var(--kcg-navy);
+  padding: 8px 14px 4px;
+  font-size: 12px;
+  background: #EEF3F8;
+  border-top: 1px solid var(--kcg-ice);
+  margin-top: 6px;
+}
+
+.toc-item-chapter:first-child {
+  margin-top: 0;
+  border-top: none;
+}
+
+.toc-item-article {
+  padding-left: 24px;
+}
+
+.toc-item-addenda, .toc-item-annex {
+  font-weight: 600;
+  color: var(--kcg-steel-dark);
+}
+
+/* 우측 본문 뷰어 */
+.viewer-content-pane {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2.5rem 3rem;
+  background-color: var(--kcg-white);
+  scroll-behavior: smooth;
+}
+
+.paper-sheet {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* 법령 헤더 정보 */
+.law-title-banner {
+  text-align: center;
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--kcg-ice);
+}
+
+.law-name-heading {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--kcg-navy);
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+}
+
+.law-meta-row {
+  font-size: 13.5px;
+  color: var(--kcg-slate-dark);
+  margin-bottom: 6px;
+}
+
+.law-dept-info {
+  font-size: 13px;
+  color: var(--kcg-slate-dark);
+  text-align: right;
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+/* 조문 본문 렌더링 */
+.law-body-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-size: 15px;
+  line-height: 1.85;
+  color: #1A1A1A;
+}
+
+.law-chapter-block {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--kcg-navy);
+  margin: 1.5rem 0 0.5rem;
+  padding: 8px;
+  background: var(--kcg-ice-light);
+  border-radius: var(--radius-sm);
+}
+
+.law-article-block {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.3s ease;
+  scroll-margin-top: 20px;
+}
+
+.law-article-block:hover {
+  background-color: #FAFBFD;
+}
+
+.law-article-block.active-target {
+  background-color: #FFFDE6;
+  border-left: 3px solid #E5BA15;
+}
+
+.article-no-title {
+  font-weight: 800;
+  color: var(--kcg-navy);
+  font-size: 15.5px;
+  display: inline;
+  margin-right: 6px;
+}
+
+.article-content-text {
+  display: inline;
+}
+
+.article-paragraphs {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.law-paragraph-row {
+  text-indent: -1.2em;
+  padding-left: 1.2em;
+}
+
+.law-subitem-row {
+  text-indent: -1.2em;
+  padding-left: 2.4em;
+  color: #333;
+}
+
+.law-addenda-block, .law-annex-block {
+  margin-top: 2rem;
+  padding: 16px;
+  background-color: var(--kcg-ice-light);
+  border: 1px solid var(--kcg-ice);
+  border-radius: var(--radius-sm);
+  scroll-margin-top: 20px;
+}
+
+.section-box-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--kcg-navy);
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--kcg-ice);
+  padding-bottom: 4px;
+}
+
+/* 인쇄용 미디어 쿼리 */
+@media print {
+  .viewer-top-header, .viewer-sub-toolbar, .viewer-sidebar-toc {
+    display: none !important;
+  }
+  .viewer-split-layout, .viewer-content-pane, body.viewer-body {
+    overflow: visible !important;
+    height: auto !important;
+    background: white !important;
+  }
+  .viewer-content-pane {
+    padding: 0 !important;
+  }
+}

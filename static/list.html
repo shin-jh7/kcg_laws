@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>법령 / 행정규칙 목록 - 해양경찰 법령정보센터</title>
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/list.css">
+</head>
+<body>
+  <!-- 상단 글로벌 헤더 -->
+  <header class="kcg-header">
+    <div class="header-container">
+      <a href="/" class="brand-area">
+        <div class="brand-logo-badge">⚓</div>
+        <div class="brand-text-wrap">
+          <span class="brand-sub">Korea Coast Guard</span>
+          <span class="brand-title">해양경찰 법령정보센터</span>
+        </div>
+      </a>
+      
+      <nav class="main-nav">
+        <a href="/laws" id="navLaws" class="nav-link">📘 법령</a>
+        <a href="/rules" id="navRules" class="nav-link">📑 행정규칙</a>
+        <a href="/commentary" id="navCommentary" class="nav-link">💡 법령해설</a>
+        <a href="/admin" class="nav-link nav-link-admin">⚙️ 관리자 모드</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+    <!-- 상단 네비게이션: [요구사항] 홈 화면으로 돌아가기 기능 포함 -->
+    <div class="page-nav-bar">
+      <div class="page-title-wrap">
+        <h1 id="pageTitle" class="page-title">법령 목록</h1>
+        <span id="pageCount" class="page-badge-count">총 0건</span>
+      </div>
+      
+      <!-- 핵심 요구사항: 홈 화면으로 돌아가기 버튼 -->
+      <a href="/" class="back-home-btn">
+        <span>🏠</span>
+        <span>홈 화면으로 돌아가기</span>
+      </a>
+    </div>
+
+    <!-- 필터 및 검색 컨트롤러 -->
+    <div class="filter-control-bar">
+      <div id="subCategoryTabs" class="sub-category-tabs">
+        <!-- 탭 버튼 동적 생성 (전체, 법률, 대통령령, 부령 또는 전체, 훈령, 예규, 고시) -->
+      </div>
+
+      <div class="list-quick-search">
+        <input type="text" id="listSearchInput" placeholder="목록 내 검색 (명칭, 부서)">
+        <button type="button" id="btnListSearch">검색</button>
+      </div>
+    </div>
+
+    <!-- 목록 테이블 -->
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 70px; text-align: center;">번호</th>
+            <th style="width: 110px;">구분</th>
+            <th>법령 / 행정규칙명</th>
+            <th style="width: 170px;">발령번호</th>
+            <th style="width: 120px;">시행일자</th>
+            <th style="width: 180px;">소관부서</th>
+            <th style="width: 90px; text-align: center;">원문파일</th>
+          </tr>
+        </thead>
+        <tbody id="lawTableBody">
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 2rem; color: var(--kcg-slate);">
+              목록을 불러오는 중입니다...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer class="kcg-footer">
+    <div class="footer-container">
+      <p>해양경찰 법령정보센터 | Korea Coast Guard Law Information Center</p>
+    </div>
+  </footer>
+
+  <script src="/static/js/common.js"></script>
+  <script src="/static/js/list.js"></script>
+</body>
+</html>

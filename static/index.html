@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>해양경찰 법령정보센터</title>
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+  <!-- 상단 글로벌 헤더 -->
+  <header class="kcg-header">
+    <div class="header-container">
+      <a href="/" class="brand-area">
+        <div class="brand-logo-badge">⚓</div>
+        <div class="brand-text-wrap">
+          <span class="brand-sub">Korea Coast Guard</span>
+          <span class="brand-title">해양경찰 법령정보센터</span>
+        </div>
+      </a>
+      
+      <!-- 요구사항: 메뉴 '법령', '행정규칙', '법령해설' -->
+      <nav class="main-nav">
+        <a href="/laws" class="nav-link">📘 법령</a>
+        <a href="/rules" class="nav-link">📑 행정규칙</a>
+        <a href="/commentary" class="nav-link">💡 법령해설</a>
+        <a href="/admin" class="nav-link nav-link-admin">⚙️ 관리자 모드</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+    <!-- 메인 검색 섹션 (첨부1 기준) -->
+    <section class="hero-search-section">
+      <div class="hero-emblem">🌊</div>
+      <h1 class="hero-title">해양경찰 법령정보센터</h1>
+      <p class="hero-subtitle">해양경찰 소관 법률, 대통령령, 부령 및 훈령·예규·고시, 법령해설을 통합 검색하고 열람합니다.</p>
+
+      <div class="search-box-wrap">
+        <form id="heroSearchForm" class="search-form" action="/search" method="GET">
+          <select id="searchCategory" name="category" class="search-category-select">
+            <option value="">전체</option>
+            <option value="law">법령</option>
+            <option value="rule">행정규칙</option>
+            <option value="commentary">법령해설</option>
+          </select>
+          <input 
+            type="text" 
+            id="searchInput" 
+            name="q" 
+            class="search-input" 
+            placeholder="법령명, 조문 내용, 키워드를 입력하세요 (예: 복제, 해양경비, 수색, 수상레저)" 
+            required 
+            autocomplete="off"
+          >
+          <button type="submit" class="search-btn">
+            🔍 검색
+          </button>
+        </form>
+
+        <div class="search-tags">
+          <span class="tag-label">추천 검색어:</span>
+          <a href="/search?q=복제" class="tag-item">#복제</a>
+          <a href="/search?q=착용수칙" class="tag-item">#착용수칙</a>
+          <a href="/search?q=해양경비" class="tag-item">#해양경비</a>
+          <a href="/search?q=수상레저" class="tag-item">#수상레저</a>
+          <a href="/search?q=함정" class="tag-item">#함정운용</a>
+          <a href="/search?q=오염방제" class="tag-item">#오염방제</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 통계 요약 바 -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div id="statTotal" class="stat-num">-</div>
+        <div class="stat-label">총 등록 규정</div>
+      </div>
+      <div class="stat-item">
+        <div id="statLaws" class="stat-num">-</div>
+        <div class="stat-label">법령 (법률/부령)</div>
+      </div>
+      <div class="stat-item">
+        <div id="statRules" class="stat-num">-</div>
+        <div class="stat-label">행정규칙 (훈령/예규/고시)</div>
+      </div>
+      <div class="stat-item">
+        <div id="statCommentaries" class="stat-num">-</div>
+        <div class="stat-label">법령해설 (유권해석례)</div>
+      </div>
+      <div class="stat-item">
+        <div id="statSections" class="stat-num">-</div>
+        <div class="stat-label">총 파싱 조문 수</div>
+      </div>
+    </div>
+
+    <!-- 바로가기 카드 그리드 -->
+    <div class="cards-grid">
+      <!-- 주요 법령 카드 -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📘 주요 법령</h2>
+          <a href="/laws" class="card-more-link">더보기 +</a>
+        </div>
+        <ul id="mainLawsList" class="card-list">
+          <!-- 동적 렌더링 -->
+          <li class="card-item"><span class="card-item-title">데이터를 불러오는 중입니다...</span></li>
+        </ul>
+      </div>
+
+      <!-- 최근 행정규칙 카드 -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📑 최근 행정규칙</h2>
+          <a href="/rules" class="card-more-link">더보기 +</a>
+        </div>
+        <ul id="mainRulesList" class="card-list">
+          <!-- 동적 렌더링 -->
+          <li class="card-item"><span class="card-item-title">데이터를 불러오는 중입니다...</span></li>
+        </ul>
+      </div>
+
+      <!-- 주요 법령해설 카드 -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">💡 주요 법령해설</h2>
+          <a href="/commentary" class="card-more-link">더보기 +</a>
+        </div>
+        <ul id="mainCommentaryList" class="card-list">
+          <!-- 동적 렌더링 -->
+          <li class="card-item"><span class="card-item-title">데이터를 불러오는 중입니다...</span></li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer class="kcg-footer">
+    <div class="footer-container">
+      <p>해양경찰 법령정보센터 | Korea Coast Guard Law Information Center</p>
+      <p style="margin-top: 4px; font-size: 12px; color: var(--kcg-slate);">본 시스템은 로컬 PC 환경에서 독립적으로 운영되는 법령 정보 관리 시스템입니다.</p>
+    </div>
+  </footer>
+
+  <script src="/static/js/common.js"></script>
+  <script src="/static/js/main.js"></script>
+</body>
+</html>

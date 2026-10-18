@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>관리자 모드 - 해양경찰 법령정보센터</title>
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/list.css">
+  <style>
+    .admin-upload-card {
+      background: var(--kcg-white);
+      border: 1px solid var(--kcg-ice);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-label {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--kcg-navy);
+    }
+    .form-control {
+      padding: 10px 12px;
+      border: 1px solid var(--kcg-ice-dark);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-control:focus {
+      border-color: var(--kcg-steel);
+    }
+    .dropzone-area {
+      border: 2px dashed var(--kcg-steel);
+      border-radius: var(--radius-md);
+      background-color: var(--kcg-ice-light);
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 1.5rem;
+    }
+    .dropzone-area:hover, .dropzone-area.dragover {
+      background-color: #E2ECF5;
+      border-color: var(--kcg-navy);
+    }
+    .btn-submit-upload {
+      background-color: var(--kcg-navy);
+      color: var(--kcg-white);
+      padding: 12px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      transition: background-color 0.2s;
+      cursor: pointer;
+    }
+    .btn-submit-upload:hover {
+      background-color: var(--kcg-navy-light);
+    }
+    .btn-edit {
+      background-color: var(--kcg-navy);
+      color: white;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      margin-right: 4px;
+    }
+    .btn-edit:hover {
+      background-color: var(--kcg-steel);
+    }
+    .btn-danger {
+      background-color: #E53935;
+      color: white;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+    }
+    .btn-danger:hover {
+      background-color: #C62828;
+    }
+    .clickable-row {
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    .clickable-row:hover {
+      background-color: #EDF4FA !important;
+    }
+
+    /* 수정 모달 스타일 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(30, 59, 90, 0.55);
+      z-index: 2000;
+      backdrop-filter: blur(2px);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.show {
+      display: flex;
+    }
+    .modal-dialog {
+      background: var(--kcg-white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      width: 90%;
+      max-width: 680px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modalFadeIn 0.2s ease-out;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(-15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .modal-header {
+      background: linear-gradient(135deg, var(--kcg-navy) 0%, var(--kcg-navy-dark) 100%);
+      color: var(--kcg-white);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title {
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .modal-close-btn {
+      background: none;
+      color: var(--kcg-ice);
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .modal-close-btn:hover {
+      color: var(--kcg-white);
+    }
+    .modal-body {
+      padding: 1.5rem 1.75rem;
+      overflow-y: auto;
+    }
+    .modal-footer {
+      background: var(--kcg-ice-light);
+      border-top: 1px solid var(--kcg-ice);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .btn-secondary {
+      background: var(--kcg-ice);
+      color: var(--kcg-text-main);
+      padding: 8px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .btn-secondary:hover {
+      background: var(--kcg-ice-dark);
+    }
+  </style>
+</head>
+<body>
+  <header class="kcg-header">
+    <div class="header-container">
+      <a href="/" class="brand-area">
+        <div class="brand-logo-badge">⚓</div>
+        <div class="brand-text-wrap">
+          <span class="brand-sub">Korea Coast Guard</span>
+          <span class="brand-title">해양경찰 법령정보센터</span>
+        </div>
+      </a>
+      
+      <nav class="main-nav">
+        <a href="/laws" class="nav-link">📘 법령</a>
+        <a href="/rules" class="nav-link">📑 행정규칙</a>
+        <a href="/commentary" class="nav-link">💡 법령해설</a>
+        <a href="/admin" class="nav-link nav-link-admin active">⚙️ 관리자 모드</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+    <div class="page-nav-bar">
+      <div class="page-title-wrap">
+        <h1 class="page-title">관리자: 법령·행정규칙·법령해설 로컬 등록 관리</h1>
+        <span class="page-badge-count">로컬 저장소 동기화</span>
+      </div>
+      <a href="/" class="back-home-btn">
+        <span>🏠</span>
+        <span>홈 화면으로 돌아가기</span>
+      </a>
+    </div>
+
+    <!-- 국가법령정보센터 Open API 자동 수집 및 동기화 카드 -->
+    <div class="admin-upload-card" style="border-left: 4px solid var(--kcg-navy); background: linear-gradient(180deg, #F9FBFC 0%, #FFFFFF 100%);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; margin-bottom: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 20px;">🌐</span>
+            <h2 style="font-size: 18px; color: var(--kcg-navy); margin: 0; font-weight: 700;">
+              국가법령정보센터 Open API 자동 수집 및 동기화
+            </h2>
+            <span style="background: #E8F5E9; color: #2E7D32; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid #A5D6A7;">
+              인증키 승인 완료
+            </span>
+          </div>
+          <div style="font-size: 13px; color: var(--kcg-slate-dark); line-height: 1.6;">
+            발급된 사용자 인증키: <code style="font-weight: 700; color: var(--kcg-navy); background: #EBF3FA; padding: 2px 6px; border-radius: 3px;">kcg_laws_20261018001</code>
+            <span style="margin: 0 6px; color: #CBD5E1;">|</span>
+            <span>현재 로컬 보관 현황: <strong id="statBadgeTotal" style="color: var(--kcg-navy); font-size: 14px;">총 0건</strong> (법령 <span id="statBadgeLaw" style="font-weight:700; color:var(--kcg-steel);">0</span>건, 행정규칙 <span id="statBadgeRule" style="font-weight:700; color:var(--kcg-steel);">0</span>건, 법령해설 <span id="statBadgeCommentary" style="font-weight:700; color:var(--kcg-steel);">0</span>건, 조문 <span id="statBadgeSec" style="font-weight:700;">0</span>개)</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button type="button" id="btnSyncApi" class="btn-submit-upload" style="background-color: var(--kcg-navy); display: flex; align-items: center; gap: 6px; padding: 10px 22px; font-size: 14px;">
+            <span id="syncIcon">🔄</span>
+            <span id="syncBtnText">전체 법령·행정규칙·해설 일괄 동기화</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 동기화 세부 옵션 -->
+      <div style="background: white; border: 1px solid var(--kcg-ice); border-radius: 6px; padding: 12px 16px; margin-bottom: 12px; display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: center;">
+        <div class="form-group" style="margin: 0;">
+          <label class="form-label" style="font-size: 12px; margin-bottom: 2px;">📘 법령 검색어 (쉼표 구분)</label>
+          <input type="text" id="syncLawQueries" class="form-control" style="padding: 6px 10px; font-size: 13px;" value="해양경찰, 해양경찰청, 해양경비, 수상레저, 연안사고, 수색구조">
+        </div>
+        <div class="form-group" style="margin: 0;">
+          <label class="form-label" style="font-size: 12px; margin-bottom: 2px;">📑 행정규칙 검색어 (쉼표 구분)</label>
+          <input type="text" id="syncRuleQueries" class="form-control" style="padding: 6px 10px; font-size: 13px;" value="해양경찰청, 해양경찰">
+        </div>
+        <div class="form-group" style="margin: 0;">
+          <label class="form-label" style="font-size: 12px; margin-bottom: 2px;">💡 법령해설 검색어 (쉼표 구분)</label>
+          <input type="text" id="syncExpcQueries" class="form-control" style="padding: 6px 10px; font-size: 13px;" value="해양경찰, 해양경찰청">
+        </div>
+        <div class="form-group" style="margin: 0; min-width: 140px;">
+          <label class="form-label" style="font-size: 12px; margin-bottom: 2px;">수집 범위</label>
+          <select id="syncScope" class="form-control" style="padding: 6px 10px; font-size: 13px; background: white;">
+            <option value="all" selected>전체 모두 가져오기</option>
+            <option value="10">빠른 테스트 (10건)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 실시간 진행 상태 영역 -->
+      <div id="syncProgressArea" style="display: none; background: #EEF4FA; border: 1px solid var(--kcg-ice); border-radius: 6px; padding: 14px 18px; margin-top: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: var(--kcg-navy);">
+            <span>⏳</span>
+            <span id="syncStatusMsg">법령 정보 수집 중...</span>
+          </div>
+          <span id="syncProgressPercent" style="font-size: 12.5px; font-weight: 700; color: var(--kcg-navy);">0%</span>
+        </div>
+        <div style="width: 100%; height: 8px; background: #D0E0EE; border-radius: 4px; overflow: hidden;">
+          <div id="syncProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--kcg-steel), var(--kcg-navy)); transition: width 0.3s ease;"></div>
+        </div>
+      </div>
+
+      <!-- 완료 결과 메시지 -->
+      <div id="syncResultArea" style="display: none; background: #E8F5E9; border: 1px solid #C8E6C9; border-radius: 6px; padding: 12px 16px; margin-top: 10px; font-size: 13.5px; color: #2E7D32;">
+        <span id="syncResultMsg"></span>
+      </div>
+    </div>
+
+    <!-- 파일 수동 업로드 폼 -->
+    <div class="admin-upload-card">
+      <h2 style="font-size: 18px; color: var(--kcg-navy); margin-bottom: 1.25rem;">
+        📤 법령 / 행정규칙 파일 수동 업로드
+      </h2>
+
+      <form id="uploadForm">
+        <!-- 드래그앤드롭 파일 첨부 영역 -->
+        <div id="dropzone" class="dropzone-area">
+          <div style="font-size: 32px; margin-bottom: 8px;">📁</div>
+          <div style="font-weight: 700; color: var(--kcg-navy); margin-bottom: 4px;">
+            법령 문서 파일을 드래그하거나 클릭하여 선택하세요
+          </div>
+          <div style="font-size: 12.5px; color: var(--kcg-slate-dark);">
+            지원 파일: .txt, .json, .hwp, .hwpx, .pdf 등 (표준 텍스트 문서는 조문이 자동 파싱됩니다)
+          </div>
+          <input type="file" id="fileInput" name="file" style="display: none;" required>
+          <div id="selectedFileName" style="margin-top: 10px; font-weight: 700; color: var(--kcg-steel);"></div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">대분류 *</label>
+            <select id="formCategory" name="category" class="form-control" required>
+              <option value="law">법령 (법률, 대통령령, 부령)</option>
+              <option value="rule" selected>행정규칙 (훈령, 예규, 고시)</option>
+              <option value="commentary">법령해설 (법제처 법령해석례)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">세부분류 *</label>
+            <select id="formSubCategory" name="sub_category" class="form-control" required>
+              <option value="훈령" selected>훈령</option>
+              <option value="예규">예규</option>
+              <option value="고시">고시</option>
+              <option value="부령">부령</option>
+              <option value="법률">법률</option>
+              <option value="대통령령">대통령령</option>
+              <option value="법령해석례">법령해석례</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">법령 / 행정규칙명 (생략 시 파일명 자동 적용)</label>
+            <input type="text" id="formTitle" name="title" class="form-control" placeholder="예: 해양경찰청 장비관리 규칙">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">소관부서</label>
+            <input type="text" id="formDept" name="department" class="form-control" value="해양경찰청" placeholder="예: 해양경찰청 장비관리과">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">발령번호</label>
+            <input type="text" id="formPromulgationNo" name="promulgation_no" class="form-control" placeholder="예: 해양경찰청훈령 제250호">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">시행일자</label>
+            <input type="date" id="formEnforcementDate" name="enforcement_date" class="form-control">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="submit" id="btnSubmit" class="btn-submit-upload">
+            💾 로컬 디렉터리 저장 및 등록하기
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 등록된 법령 목록 관리 -->
+    <div class="data-table-wrap">
+      <div style="padding: 1.1rem 1.25rem; background: var(--kcg-ice-light); border-bottom: 1px solid var(--kcg-ice); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <h3 style="font-size: 16px; color: var(--kcg-navy); font-weight: 700;">📂 로컬 저장소 등록 현황</h3>
+          <span id="adminListCount" class="page-badge-count" style="font-size: 12px;">총 0건</span>
+        </div>
+
+        <!-- 관리자 목록 검색 및 필터 -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <select id="adminFilterCategory" style="padding: 6px 10px; border: 1px solid var(--kcg-ice-dark); border-radius: var(--radius-sm); font-size: 13px; outline: none; background: white;">
+            <option value="">전체 구분</option>
+            <option value="law">법령</option>
+            <option value="rule">행정규칙</option>
+            <option value="commentary">법령해설</option>
+          </select>
+          <div class="list-quick-search" style="width: 240px;">
+            <input type="text" id="adminSearchInput" placeholder="법령명, 부서명 검색" style="padding: 5px 10px;">
+            <button type="button" id="btnAdminSearch" style="padding: 5px 12px;">검색</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 클릭 안내 알림 배너 -->
+      <div style="background-color: #EBF3FA; padding: 8px 16px; font-size: 13px; color: var(--kcg-navy); border-bottom: 1px solid var(--kcg-ice); display: flex; align-items: center; gap: 6px;">
+        <span>💡</span>
+        <span><strong>클릭하여 수정:</strong> 검색 결과 리스트의 항목을 클릭하거나 우측 <strong>[수정 ✏️]</strong> 버튼을 누르면 <strong>대분류, 세부분류, 법령명</strong> 등을 즉시 수정할 수 있습니다.</span>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 50px; text-align: center;">ID</th>
+            <th style="width: 90px;">구분</th>
+            <th>법령 / 규칙명 (클릭 시 수정)</th>
+            <th style="width: 120px;">시행일자</th>
+            <th style="width: 150px;">소관부서</th>
+            <th style="width: 170px;">로컬 파일명</th>
+            <th style="width: 160px; text-align: center;">관리</th>
+          </tr>
+        </thead>
+        <tbody id="adminTableBody">
+          <tr><td colspan="7" style="text-align: center; padding: 2rem;">목록을 불러오는 중...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 법령 메타데이터 수정 모달 (팝업 다이얼로그) -->
+    <div id="editModal" class="modal-overlay">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <span class="modal-title">✏️ 법령 및 행정규칙 메타정보 수정</span>
+          <button type="button" class="modal-close-btn" id="btnModalClose">&times;</button>
+        </div>
+        
+        <form id="editForm">
+          <div class="modal-body">
+            <input type="hidden" id="editLawId" name="law_id">
+
+            <!-- 파일 정보 표시 바 -->
+            <div style="background: var(--kcg-ice-light); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 12.5px; color: var(--kcg-slate-dark); margin-bottom: 1.25rem;">
+              <span><strong>대상 ID:</strong> #<span id="displayEditId">-</span></span> | 
+              <span><strong>로컬 저장 파일:</strong> <code id="displayEditFile">-</code></span>
+            </div>
+
+            <div class="form-grid" style="margin-bottom: 0;">
+              <div class="form-group">
+                <label class="form-label">대분류 *</label>
+                <select id="editCategory" name="category" class="form-control" required>
+                  <option value="law">법령 (법률, 대통령령, 부령)</option>
+                  <option value="rule">행정규칙 (훈령, 예규, 고시)</option>
+                  <option value="commentary">법령해설 (법제처 법령해석례)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">세부분류 *</label>
+                <select id="editSubCategory" name="sub_category" class="form-control" required>
+                  <option value="법률">법률</option>
+                  <option value="대통령령">대통령령</option>
+                  <option value="부령">부령</option>
+                  <option value="훈령">훈령</option>
+                  <option value="예규">예규</option>
+                  <option value="고시">고시</option>
+                  <option value="법령해석례">법령해석례</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">법령 / 행정규칙명 *</label>
+                <input type="text" id="editTitle" name="title" class="form-control" required placeholder="법령명을 입력하세요">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">소관부서</label>
+                <input type="text" id="editDepartment" name="department" class="form-control" placeholder="예: 해양경찰청 장비관리과">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">소관부서 연락처</label>
+                <input type="text" id="editDepartmentPhone" name="department_phone" class="form-control" placeholder="예: 032-835-2276">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">발령번호</label>
+                <input type="text" id="editPromulgationNo" name="promulgation_no" class="form-control" placeholder="예: 해양수산부령 제696호">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">시행일자</label>
+                <input type="date" id="editEnforcementDate" name="enforcement_date" class="form-control">
+              </div>
+
+              <!-- 로컬 저장 파일명 편집 및 파일 교체 영역 -->
+              <div class="form-group" style="grid-column: 1 / -1; background: #F8FAFC; border: 1px dashed var(--kcg-ice-dark); border-radius: var(--radius-sm); padding: 12px;">
+                <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+                  <span>📁 로컬 저장 파일명 (직접 수정 가능)</span>
+                  <span style="font-size: 11.5px; font-weight: normal; color: var(--kcg-slate-dark);">수정 시 디스크 파일명이 자동 변경됩니다</span>
+                </label>
+                <input type="text" id="editFileName" name="file_name" class="form-control" style="font-family: monospace; font-size: 13px; margin-bottom: 8px;">
+
+                <!-- 파일 교체 옵션 -->
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px solid var(--kcg-ice); padding-top: 8px;">
+                  <span style="font-size: 12.5px; color: var(--kcg-slate-dark);">새 문서 파일로 교체하기:</span>
+                  <div style="display: flex; gap: 6px;">
+                    <input type="file" id="replaceFileInput" style="font-size: 12px; width: 230px;">
+                    <button type="button" id="btnReplaceFileAction" class="btn-secondary" style="padding: 4px 10px; font-size: 12px;">
+                      🔄 파일 교체
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="btnModalCancel">취소</button>
+            <button type="submit" id="btnModalSave" class="btn-submit-upload" style="padding: 8px 22px; font-size: 14px;">
+              💾 수정 내용 저장
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="kcg-footer">
+    <div class="footer-container">
+      <p>해양경찰 법령정보센터 관리자 시스템</p>
+    </div>
+  </footer>
+
+  <script src="/static/js/common.js?v=20261018_final"></script>
+  <script src="/static/js/admin.js?v=20261018_final"></script>
+</body>
+</html>

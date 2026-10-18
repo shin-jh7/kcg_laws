@@ -1,0 +1,75 @@
+/* 
+ * [첨부3 컬러 테마 추출 반영]
+ * #2A5078 (Deep Navy) - 메인 브랜드 헤더, 주요 버튼, 강조 타이틀
+ * #6587A5 (Steel Blue) - 서브 액센트, 조문 번호(제1조 등), 링크 텍스트, 뱃지
+ * #FFFFFF (Pure White) - 본문 배경 용지, 카드 배경
+ * #848996 (Slate Gray) - 보조 텍스트, 시행일자, 발령번호, 테두리
+ * #DBE4EB (Ice Blue) - 사이드바 배경, 카드 테두리, 배경 분할선
+ */
+
+:root {
+  --kcg-navy: #2A5078;
+  --kcg-navy-dark: #1E3B5A;
+  --kcg-navy-light: #366599;
+  
+  --kcg-steel: #6587A5;
+  --kcg-steel-light: #7E9EB8;
+  --kcg-steel-dark: #4F6D88;
+  
+  --kcg-ice: #DBE4EB;
+  --kcg-ice-light: #F0F4F8;
+  --kcg-ice-dark: #C4D3DF;
+  
+  --kcg-slate: #848996;
+  --kcg-slate-light: #A5AAB5;
+  --kcg-slate-dark: #636873;
+  
+  --kcg-white: #FFFFFF;
+  --kcg-text-main: #222B35;
+  --kcg-text-secondary: #555E6B;
+  
+  --shadow-sm: 0 1px 3px rgba(42, 80, 120, 0.08);
+  --shadow-md: 0 4px 12px rgba(42, 80, 120, 0.12);
+  --shadow-lg: 0 10px 25px rgba(42, 80, 120, 0.15);
+  
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 9999px;
+
+  --font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "맑은 고딕", "Noto Sans KR", Dotum, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--kcg-ice-light);
+  color: var(--kcg-text-main);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--kcg-steel);
+  text-decoration: none;
+  transition: color 0.15s ease-in-out;
+}
+
+a:hover {
+  color: var(--kcg-navy);
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
