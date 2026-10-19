@@ -31,3 +31,20 @@ function getCategoryBadge(category, subCategory) {
   const text = subCategory || defaultText;
   return `<span class="badge ${badgeClass}">${text}</span>`;
 }
+
+// 관리자 IP가 아닌 경우 메뉴의 '관리자 모드' 링크 숨김 (실제 차단은 서버에서 수행)
+(function hideAdminLinkForNonAdmin() {
+  const apply = async () => {
+    const links = document.querySelectorAll(".nav-link-admin");
+    if (!links.length) return;
+    try {
+      const res = await fetch("/api/admin/session", { cache: "no-store" });
+      const info = res.ok ? await res.json() : { admin_ip: false };
+      if (!info.admin_ip) links.forEach(a => a.style.display = "none");
+    } catch (e) {
+      links.forEach(a => a.style.display = "none");
+    }
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", apply);
+  else apply();
+})();

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>관리자 로그인 - 해양경찰 법령정보센터</title>
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <style>
+    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+           background: linear-gradient(135deg, var(--kcg-navy, #1E3B5A) 0%, #0F2236 100%); font-family: inherit; }
+    .login-card { background: #fff; width: 92%; max-width: 380px; border-radius: 10px; padding: 2.2rem 2rem;
+                  box-shadow: 0 18px 40px rgba(0,0,0,.25); }
+    .login-badge { font-size: 34px; text-align: center; }
+    h1 { font-size: 19px; text-align: center; color: var(--kcg-navy, #1E3B5A); margin: .5rem 0 .25rem; }
+    .sub { font-size: 12.5px; text-align: center; color: #64748B; margin-bottom: 1.5rem; }
+    label { font-size: 13px; font-weight: 700; color: var(--kcg-navy, #1E3B5A); }
+    input { width: 100%; box-sizing: border-box; padding: 11px 12px; margin: 6px 0 14px; border: 1px solid #CBD5E1;
+            border-radius: 6px; font-size: 14px; outline: none; }
+    input:focus { border-color: var(--kcg-steel, #3A6EA5); }
+    button { width: 100%; padding: 12px; border: 0; border-radius: 6px; background: var(--kcg-navy, #1E3B5A);
+             color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+    button:disabled { opacity: .6; cursor: default; }
+    .err { display: none; margin-top: 12px; padding: 9px 12px; border-radius: 6px; background: #FFEBEE; color: #C62828; font-size: 13px; }
+    .home { display: block; text-align: center; margin-top: 16px; font-size: 13px; color: #64748B; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <main class="login-card">
+    <div class="login-badge">⚓</div>
+    <h1>관리자 로그인</h1>
+    <p class="sub">해양경찰 법령정보센터 관리자 전용</p>
+    <form id="loginForm">
+      <label for="adminPassword">관리자 비밀번호</label>
+      <input type="password" id="adminPassword" autocomplete="current-password" required autofocus>
+      <button type="submit" id="btnLogin">로그인</button>
+      <div id="loginError" class="err"></div>
+    </form>
+    <a href="/" class="home">← 홈으로</a>
+  </main>
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btnLogin");
+      const errBox = document.getElementById("loginError");
+      const pw = document.getElementById("adminPassword");
+      btn.disabled = true;
+      errBox.style.display = "none";
+      try {
+        const res = await fetch("/api/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: pw.value })
+        });
+        if (res.ok) {
+          location.replace("/admin");
+          return;
+        }
+        const data = await res.json().catch(() => ({}));
+        errBox.textContent = data.detail || "로그인에 실패했습니다.";
+        errBox.style.display = "block";
+        pw.value = "";
+        pw.focus();
+      } catch (err) {
+        errBox.textContent = "네트워크 오류: " + err.message;
+        errBox.style.display = "block";
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

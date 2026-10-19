@@ -1,5 +1,18 @@
 // 관리자 화면 스크립트
 
+// 세션 만료(401) 시 로그인 화면으로 이동
+(() => {
+  const originalFetch = window.fetch.bind(window);
+  window.fetch = async (...args) => {
+    const res = await originalFetch(...args);
+    if (res.status === 401) {
+      alert("관리자 세션이 만료되었습니다. 다시 로그인해 주세요.");
+      location.replace("/admin/login");
+    }
+    return res;
+  };
+})();
+
 let adminSearchKeyword = "";
 let adminCategoryFilter = "";
 
@@ -9,8 +22,18 @@ document.addEventListener("DOMContentLoaded", () => {
   setupSearchAndFilter();
   setupEditModal();
   setupApiSync();
+  setupLogout();
   loadAdminList();
 });
+
+function setupLogout() {
+  const btn = document.getElementById("btnAdminLogout");
+  if (!btn) return;
+  btn.addEventListener("click", async () => {
+    try { await fetch("/api/admin/logout", { method: "POST" }); } catch (e) {}
+    location.replace("/");
+  });
+}
 
 function setupApiSync() {
   const btnSync = document.getElementById("btnSyncApi");
@@ -132,7 +155,7 @@ function setupApiSync() {
           const commsCnt = data.db_commentary_count || data.commentaries_synced || 0;
           const totalCnt = data.db_total_count || data.total_synced || (lawsCnt + rulesCnt + commsCnt);
 
-          resultMsg.innerHTML = `<strong>✅ 전체 동기화 성공!</strong> 해양경찰 법령 <strong>${lawsCnt}건</strong>, 행정규칙 <strong>${rulesCnt}건</strong>, 법령해설 <strong>${commsCnt}건</strong> (총 <strong>${totalCnt}건</strong>)이 로컬 저장소 및 DB에 완벽히 구축되었습니다. (인증키: <code>${data.oc_key}</code>)`;
+          resultMsg.innerHTML = `<strong>✅ 전체 동기화 성공!</strong> 해양경찰 법령 <strong>${lawsCnt}건</strong>, 행정규칙 <strong>${rulesCnt}건</strong>, 법령해설 <strong>${commsCnt}건</strong> (총 <strong>${totalCnt}건</strong>)이 로컬 저장소 및 DB에 완벽히 구축되었습니다.`;
         }
         loadAdminList();
       } else {

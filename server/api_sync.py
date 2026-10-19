@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .database import get_connection, insert_law, update_law, replace_law_sections
 
-OC_KEY = "kcg_laws_20261018001"
+OC_KEY = os.environ.get("KCG_LAW_OC_KEY", "kcg_laws_20261018001")
 BASE_URL = "http://www.law.go.kr"
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -738,6 +738,6 @@ def run_all_sync(
 if __name__ == "__main__":
     print("=" * 65)
     print(" [국가법령정보센터 Open API] 해양경찰 법령, 행정규칙 및 법령해설 전체 수집")
-    print(f" 사용자 인증키: {OC_KEY}")
+    print(f" 사용자 인증키: {OC_KEY[:3]}{'*' * max(len(OC_KEY) - 3, 0)}")
     print("=" * 65)
     run_all_sync(law_limit=0, rule_limit=0, expc_limit=0, download_annex=True)

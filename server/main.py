@@ -3,7 +3,7 @@ import shutil
 from typing import Optional, List
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,8 +13,10 @@ from pydantic import BaseModel
 from .database import init_db, get_laws, get_law_by_id, delete_law, get_stats, insert_law, update_law, replace_law_sections
 from .parser import parse_law_text, extract_text_from_pdf
 from .search import search_laws_and_sections
-from .api_sync import sync_laws, sync_admin_rules, run_all_sync, SYNC_STATUS, OC_KEY
+from .api_sync import sync_laws, sync_admin_rules, run_all_sync, SYNC_STATUS
 from .seed_data import seed_sample_data
+from . import security
+from fastapi.responses import RedirectResponse
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
@@ -31,14 +33,88 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="해양경찰 법령정보센터 API", lifespan=lifespan)
 
-# CORS 허용
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# CORS: 허용 도메인만 명시 (기본값: 없음 = 동일 출처만 허용)
+_cors_origins = [o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "").split(",") if o.strip()]
+if _cors_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_cors_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE"],
+        allow_headers=["Content-Type"],
+    )
+
+# ----------------- 관리자 접근 제어 미들웨어 -----------------
+
+@app.middleware("http")
+async def admin_guard(request, call_next):
+    path = request.url.path
+    method = request.method
+    need_login = security.requires_admin(path, method)
+    need_ip = need_login or security.requires_admin_ip_only(path)
+
+    if need_ip:
+        ip = security.get_client_ip(request)
+        if not security.is_ip_allowed(ip):
+            security.audit(ip, "DENY_IP", f"{method} {path}")
+            if path.startswith("/api/"):
+                return JSONResponse(status_code=403, content={"detail": "허용되지 않은 IP에서의 관리자 접근입니다."})
+            return JSONResponse(status_code=403, content={"detail": "접근 권한이 없습니다."})
+
+        if need_login:
+            token = request.cookies.get(security.SESSION_COOKIE)
+            if not security.validate_session(token, ip):
+                if path.startswith("/api/"):
+                    return JSONResponse(status_code=401, content={"detail": "관리자 로그인이 필요합니다."})
+                return RedirectResponse(url="/admin/login", status_code=303)
+            if method not in ("GET", "HEAD", "OPTIONS"):
+                security.audit(ip, "ADMIN_ACTION", f"{method} {path}")
+
+    return await call_next(request)
+
+class LoginModel(BaseModel):
+    password: str
+
+@app.post("/api/admin/login")
+def api_admin_login(payload: LoginModel, request: Request):
+    ip = security.get_client_ip(request)
+    remain = security.lockout_remaining(ip)
+    if remain:
+        raise HTTPException(status_code=429, detail=f"로그인 실패가 반복되어 잠겨 있습니다. {remain // 60 + 1}분 후 다시 시도하세요.")
+    if not security.is_password_configured():
+        raise HTTPException(status_code=503, detail="관리자 비밀번호가 설정되지 않았습니다. 서버 환경변수 ADMIN_PASSWORD_HASH를 설정하세요.")
+    if not security.verify_password(payload.password):
+        security.record_failure(ip)
+        security.audit(ip, "LOGIN_FAIL")
+        raise HTTPException(status_code=401, detail="비밀번호가 올바르지 않습니다.")
+
+    security.clear_failures(ip)
+    token = security.create_session(ip)
+    security.audit(ip, "LOGIN_OK")
+    resp = JSONResponse({"status": "success"})
+    resp.set_cookie(
+        security.SESSION_COOKIE, token,
+        httponly=True, samesite="strict", secure=security.is_https(request),
+        max_age=security.SESSION_MINUTES * 60, path="/"
+    )
+    return resp
+
+@app.post("/api/admin/logout")
+def api_admin_logout(request: Request):
+    token = request.cookies.get(security.SESSION_COOKIE)
+    security.destroy_session(token)
+    security.audit(security.get_client_ip(request), "LOGOUT")
+    resp = JSONResponse({"status": "success"})
+    resp.delete_cookie(security.SESSION_COOKIE, path="/")
+    return resp
+
+@app.get("/api/admin/session")
+def api_admin_session(request: Request):
+    """메뉴의 '관리자 모드' 링크 표시 여부 판단용 (관리자 IP에서만 true 가능)"""
+    ip = security.get_client_ip(request)
+    allowed = security.is_ip_allowed(ip)
+    logged_in = allowed and security.validate_session(request.cookies.get(security.SESSION_COOKIE), ip)
+    return {"admin_ip": allowed, "logged_in": logged_in}
 
 # ----------------- REST API -----------------
 
@@ -303,7 +379,6 @@ def api_sync_kcg_laws(req: SyncRequest = SyncRequest()):
         stats = get_stats()
         return {
             "status": "success",
-            "oc_key": OC_KEY,
             "laws_synced": res["laws_count"],
             "rules_synced": res["rules_count"],
             "commentaries_synced": res.get("comms_count", 0),
@@ -353,6 +428,13 @@ def route_viewer():
 def route_admin():
     return FileResponse(
         os.path.join(STATIC_DIR, "admin.html"),
+        headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache"}
+    )
+
+@app.get("/admin/login")
+def route_admin_login():
+    return FileResponse(
+        os.path.join(STATIC_DIR, "admin_login.html"),
         headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache"}
     )
 
