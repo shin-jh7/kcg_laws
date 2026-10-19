@@ -8,9 +8,30 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .database import get_connection, insert_law, update_law, replace_law_sections
 
-OC_KEY = os.environ.get("KCG_LAW_OC_KEY", "kcg_laws_20261018001")
-BASE_URL = "http://www.law.go.kr"
+
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
+
+def _load_env_file():
+    env_path = os.path.join(PROJECT_DIR, ".env")
+    if os.path.isfile(env_path):
+        try:
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        k, v = line.split("=", 1)
+                        k = k.strip()
+                        v = v.strip().strip('"').strip("'")
+                        if k and k not in os.environ:
+                            os.environ[k] = v
+        except Exception:
+            pass
+
+_load_env_file()
+
+# 국가법령정보센터 Open API 인증키: 환경변수(LAW_GO_KR_OC_KEY, KCG_LAW_OC_KEY 또는 OC_KEY)에서 로드, 미설정 시 공용 테스트 키("test") 사용
+OC_KEY = os.environ.get("LAW_GO_KR_OC_KEY") or os.environ.get("KCG_LAW_OC_KEY") or os.environ.get("OC_KEY") or "test"
+BASE_URL = "http://www.law.go.kr"
 
 LAWS_DIR = os.path.join(PROJECT_DIR, "data", "storage", "laws")
 RULES_DIR = os.path.join(PROJECT_DIR, "data", "storage", "rules")
@@ -738,6 +759,7 @@ def run_all_sync(
 if __name__ == "__main__":
     print("=" * 65)
     print(" [국가법령정보센터 Open API] 해양경찰 법령, 행정규칙 및 법령해설 전체 수집")
-    print(f" 사용자 인증키: {OC_KEY[:3]}{'*' * max(len(OC_KEY) - 3, 0)}")
+    masked_key = f"{OC_KEY[:3]}***{OC_KEY[-2:]}" if len(OC_KEY) > 5 else OC_KEY
+    print(f" 사용자 인증키: {masked_key} ({'사용자 발급키' if OC_KEY != 'test' else '공용 테스트키'})")
     print("=" * 65)
     run_all_sync(law_limit=0, rule_limit=0, expc_limit=0, download_annex=True)

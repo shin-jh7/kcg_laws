@@ -10,7 +10,7 @@
 | 항목 | 설정 값 / 사양 | 비고 |
 | :--- | :--- | :--- |
 | **제공 기관** | 법제처 국가법령정보공동활용 (open.law.go.kr) | 공공데이터 법령 정보 API |
-| **사용자 인증키 (OC)** | `{발급 인증키 (비공개)}` | 법제처 발급 승인 완료 |
+| **사용자 인증키 (OC)** | 환경 변수 (`LAW_GO_KR_OC_KEY`) / 기본값 `test` | 국가법령정보공동활용 승인 키 설정 권장 |
 | **기본 호출 도메인** | `http://www.law.go.kr` | REST API (HTTP GET) |
 | **응답 포맷** | XML (기본) 및 JSON 지원 | 인코딩: UTF-8 |
 | **수집 대상 분류** | - 법령 (법률, 대통령령, 해양수산부령)<br>- 행정규칙 (해양경찰청 훈령, 예규, 고시)<br>- 별표 및 법정 서식 첨부 파일<br>- 법령해설 (법제처 해양경찰 법령해석례, `target=expc`) |
@@ -22,7 +22,7 @@
 ### 3.1 법령 목록 검색 API (`lawSearch.do`)
 - **요청 URL**: `http://www.law.go.kr/DRF/lawSearch.do`
 - **주요 파라미터**:
-  - `OC`: `{발급 인증키 (비공개)}`
+  - `OC`: 사용자 인증키 (환경 변수 `LAW_GO_KR_OC_KEY` 또는 `.env`)
   - `target`: `law`
   - `type`: `XML`
   - `display`: 페이지당 건수 (기본 100건 지원)
@@ -35,7 +35,7 @@
 ### 3.2 법령 본문 및 별표/서식 상세 API (`lawService.do`)
 - **요청 URL**: `http://www.law.go.kr/DRF/lawService.do`
 - **주요 파라미터**:
-  - `OC`: `{발급 인증키 (비공개)}`
+  - `OC`: 사용자 인증키 (환경 변수 `LAW_GO_KR_OC_KEY` 또는 `.env`)
   - `target`: `law`
   - `MST`: 법령일련번호
   - `type`: `XML`
@@ -51,11 +51,11 @@
 
 ### 3.3 행정규칙 목록 및 상세 API
 - **목록 검색**:
-  - URL: `http://www.law.go.kr/DRF/lawSearch.do?OC={발급 인증키 (비공개)}&target=admrul&type=XML&query={query}&display=100&page={page}`
+  - URL: `http://www.law.go.kr/DRF/lawSearch.do?OC={OC}&target=admrul&type=XML&query={query}&display=100&page={page}`
   - 대상 검색어: `해양경찰청`, `해양경찰` (320여건 전체 순회)
   - 식별자: `행정규칙일련번호`
 - **상세 및 별표 조회**:
-  - URL: `http://www.law.go.kr/DRF/lawService.do?OC={발급 인증키 (비공개)}&target=admrul&ID={행정규칙일련번호}&type=XML`
+  - URL: `http://www.law.go.kr/DRF/lawService.do?OC={OC}&target=admrul&ID={행정규칙일련번호}&type=XML`
   - `별표/별표단위/별표파일링크` 및 `별표PDF파일링크` 제공
 
 ### 3.4 해양경찰 법령해설(법제처 법령해석례) API (`target=expc`)
@@ -63,7 +63,7 @@
   - URL: `http://www.law.go.kr/DRF/lawSearch.do?OC={OC}&target=expc&type=XML&query={query}&display=100&page={page}`
   - 대상 검색어: `해양경찰`, `해양경찰청` (전체 53건 순회 수집)
   - 식별자: `해석례일련번호` (seq)
-  - 인증키 정책: 발급키(`{발급 인증키 (비공개)}`) 우선 시도 후 미승인 시 법제처 오픈 키(`test`)로 자동 폴백(Fallback) 연동
+  - 인증키 정책: 환경 변수 발급키 우선 시도 후 미승인 시 법제처 오픈 키(`test`)로 자동 폴백(Fallback) 연동
 - **상세 본문 조회**:
   - URL: `http://www.law.go.kr/DRF/lawService.do?OC={OC}&target=expc&ID={seq}&type=XML`
   - 응답 핵심 필드 구조화:
