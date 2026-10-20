@@ -7,8 +7,11 @@ LAWS_DIR = os.path.join(BASE_DIR, "data", "storage", "laws")
 RULES_DIR = os.path.join(BASE_DIR, "data", "storage", "rules")
 
 def seed_sample_data():
-    os.makedirs(LAWS_DIR, exist_ok=True)
-    os.makedirs(RULES_DIR, exist_ok=True)
+    try:
+        os.makedirs(LAWS_DIR, exist_ok=True)
+        os.makedirs(RULES_DIR, exist_ok=True)
+    except Exception:
+        pass
     init_db()
 
     conn = get_connection()
@@ -236,9 +239,11 @@ def seed_sample_data():
     for item in samples:
         # 파일 로컬 저장소에 저장
         target_dir = LAWS_DIR if item["storage_sub"] == "laws" else RULES_DIR
-        file_path = os.path.join(target_dir, item["file_name"])
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(item["content"])
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(item["content"])
+        except Exception:
+            pass
 
         rel_path = os.path.relpath(file_path, BASE_DIR)
         meta, sections = parse_law_text(item["content"], default_title=item["title"])

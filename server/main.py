@@ -26,9 +26,12 @@ STORAGE_COMMENTARY_DIR = os.path.join(BASE_DIR, "data", "storage", "commentary")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 앱 기동 시 DB 초기화 및 기본 샘플 데이터(첨부2 복제 규칙 등) 시딩
-    init_db()
-    seed_sample_data()
+    # 앱 기동 시 DB 초기화 및 기본 샘플 데이터(첨부2 복제 규칙 등) 시딩 (안전 처리)
+    try:
+        init_db()
+        seed_sample_data()
+    except Exception as e:
+        print(f"[Lifespan Init Warning] {e}")
     yield
 
 app = FastAPI(title="해양경찰 법령정보센터 API", lifespan=lifespan)

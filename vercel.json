@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/index.py": {
+      "includeFiles": "data/kcg_laws.db"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
@@ -23,6 +28,10 @@
     {
       "source": "/viewer",
       "destination": "/static/viewer.html"
+    },
+    {
+      "source": "/admin/login",
+      "destination": "/static/admin_login.html"
     },
     {
       "source": "/admin",

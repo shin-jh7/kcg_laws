@@ -41,11 +41,18 @@ PBKDF2_ITERATIONS = 310_000
 
 # ----------------- 감사 로그 -----------------
 
-_LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
-os.makedirs(_LOG_DIR, exist_ok=True)
 audit_logger = logging.getLogger("kcg_admin_audit")
 if not audit_logger.handlers:
-    _h = logging.FileHandler(os.path.join(_LOG_DIR, "admin_audit.log"), encoding="utf-8")
+    _h = None
+    if os.environ.get("VERCEL"):
+        _h = logging.StreamHandler()
+    else:
+        try:
+            _LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+            os.makedirs(_LOG_DIR, exist_ok=True)
+            _h = logging.FileHandler(os.path.join(_LOG_DIR, "admin_audit.log"), encoding="utf-8")
+        except Exception:
+            _h = logging.StreamHandler()
     _h.setFormatter(logging.Formatter("%(asctime)s\t%(message)s"))
     audit_logger.addHandler(_h)
     audit_logger.setLevel(logging.INFO)

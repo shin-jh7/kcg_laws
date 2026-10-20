@@ -1,11 +1,48 @@
 import sqlite3
 import os
+import shutil
 from typing import List, Dict, Any, Optional
 
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "kcg_laws.db")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_PATH = os.path.join(BASE_DIR, "data", "kcg_laws.db")
+
+def _init_vercel_db():
+    """Vercel 서버리스(읽기 전용 루트 파일시스템) 환경에서 번들된 DB를 /tmp로 안전하게 복제"""
+    global DB_PATH
+    if os.environ.get("VERCEL") or not os.access(os.path.dirname(DB_PATH) if os.path.exists(os.path.dirname(DB_PATH)) else BASE_DIR, os.W_OK):
+        tmp_db = "/tmp/kcg_laws.db"
+        if not os.path.exists(tmp_db) or os.path.getsize(tmp_db) == 0:
+            candidates = [
+                os.path.join(BASE_DIR, "data", "kcg_laws.db"),
+                os.path.join(os.getcwd(), "data", "kcg_laws.db"),
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "kcg_laws.db"),
+                "/var/task/data/kcg_laws.db"
+            ]
+            copied = False
+            for cand in candidates:
+                if os.path.isfile(cand) and os.path.getsize(cand) > 0:
+                    try:
+                        shutil.copy2(cand, tmp_db)
+                        try:
+                            os.chmod(tmp_db, 0o666)
+                        except Exception:
+                            pass
+                        print(f"[Vercel DB Init] {cand} -> {tmp_db} ({os.path.getsize(tmp_db)} bytes) 복제 완료")
+                        copied = True
+                        break
+                    except Exception as e:
+                        print(f"[Vercel DB Copy Warning] {cand}: {e}")
+        DB_PATH = tmp_db
+
+_init_vercel_db()
 
 def get_connection():
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    if os.environ.get("VERCEL") and (not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) == 0):
+        _init_vercel_db()
+    try:
+        os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    except Exception:
+        pass
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
